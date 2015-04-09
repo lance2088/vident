@@ -117,8 +117,7 @@ func (self *Lexer) recognizeNumberToken() {
 		for isDigit(self.current_char) {
 			self.consumeCharacter()
 		}
-	}
-	else {
+	} else {
 		for isDigit(self.current_char) {
 			if self.peek(1) == '.' {
 				self.consumeCharacter()
