@@ -6,6 +6,10 @@ import (
 	"strings"
 )
 
+/**
+ * This represents each different type of token
+ * that our Lexer can produce
+ */
 const (
 	END_OF_FILE = iota
 	IDENTIFIER
@@ -38,12 +42,21 @@ type Token struct {
 	char_number int
 }
 
+/**
+ * Typical way in which a Lexer works,
+ * flushes the buffer, but returns the old
+ * value in the buffer.
+ */
 func (self *Lexer) flushBuffer() string {
 	result := self.buffer
 	self.buffer = ""
 	return result
 }
 
+/**
+ * Create a new token with the given token type and
+ * content.
+ */
 func (self *Lexer) createToken(token_type int, content string) {
 	token := &Token{}
 	token.token_type = token_type
@@ -54,6 +67,10 @@ func (self *Lexer) createToken(token_type int, content string) {
 	self.token_stream.PushBack(token)
 }
 
+/**
+ * Peek ahead in our input stream,
+ * returns a character.
+ */
 func (self *Lexer) peek(ahead int) byte {
 	return self.input[self.pos+ahead]
 }
@@ -70,30 +87,84 @@ func (self *Lexer) createLexer(input string) {
 	self.running = true
 }
 
+/**
+ * @return if the given character is a number
+ */
 func isDigit(c byte) bool {
 	return '0' <= c && c <= '9'
 }
 
+/**
+ * @return if the given character is "junk" character,
+ * i.e. anything below the ASCII code of 32.
+ */
 func isLayout(c byte) bool {
 	return c <= 32
 }
 
+/**
+ * @return if the given character is an
+ * uppercase OR lowercase letter.
+ */
 func isLetter(c byte) bool {
 	return ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z')
 }
 
+/**
+ * @return if the given character is a 
+ * letter or a digit
+ */
 func isLetterOrDigit(c byte) bool {
 	return isDigit(c) || isLetter(c)
 }
 
+/**
+ * @return if the given character is
+ * an operator, in this case + - * / =
+ */
 func isOperator(c byte) bool {
 	return strings.Contains("+-*/=", string(c))
 }
 
+/**
+ * @return if the given character is a separator,
+ * i.e. , {} ()
+ */
 func isSeparator(c byte) bool {
 	return strings.Contains(",{}()", string(c))
 }
 
+/**
+ * This eats up all the "junk" characters, feels weird
+ * writing that because I'm British. Eitherway, it will
+ * eat the comments, and will eat all of the useless characters
+ * such as spaces, tabs, newlines, etc.
+ */
+func (self *Lexer) skipLayoutAndComments() {
+	// eat the junk stuffs
+	for isLayout(self.current_char) {
+		self.consumeCharacter()
+	}
+
+	// coment opener
+	if self.current_char == '#' {
+		self.consumeCharacter()
+
+		// keep eating till newline
+		for self.current_char != '\n' {
+			self.consumeCharacter()
+		}
+
+		// eat more layout and junk chars
+		for isLayout(self.current_char) {
+			self.consumeCharacter()
+		}
+	}
+}
+
+/**
+ * Consumes the character in the input stream
+ */
 func (self *Lexer) consumeCharacter() {
 	if (self.pos + self.skipped_chars) > self.input_length {
 		self.running = false
@@ -109,15 +180,17 @@ func (self *Lexer) consumeCharacter() {
 }
 
 func (self *Lexer) recognizeNumberToken() {
+	// consume the first char, either a
+	// dot or a decimal
 	self.consumeCharacter()
 
 	// .52
-	if self.current_char == '.' {
+	if self.current_char == '.' {					// this is for decimals, i.e .15
 		self.consumeCharacter()
 		for isDigit(self.current_char) {
 			self.consumeCharacter()
 		}
-	} else {
+	} else {										// 5.12, 6.12, 5.1233123, etc.
 		for isDigit(self.current_char) {
 			if self.peek(1) == '.' {
 				self.consumeCharacter()
@@ -129,14 +202,21 @@ func (self *Lexer) recognizeNumberToken() {
 		}
 	}
 
+	// push our token back, the content is of the
+	// buffer
 	self.createToken(NUMBER, self.flushBuffer())
 }
 
 func (self *Lexer) recognizeIdentifierToken() {
+	// consume our first character to get
+	// the lexer going
 	self.consumeCharacter()
+	
+	// eat up all of the letters and digits
 	for isLetterOrDigit(self.current_char) {
 		self.consumeCharacter()
 	}
+	
 	for self.current_char == '_' && isLetterOrDigit(self.peek(1)) {
 		self.consumeCharacter()
 		for isLetterOrDigit(self.current_char) {
