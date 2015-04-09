@@ -110,21 +110,24 @@ func (self *Lexer) consumeCharacter() {
 
 func (self *Lexer) recognizeNumberToken() {
 	self.consumeCharacter()
+
+	// .52
 	if self.current_char == '.' {
 		self.consumeCharacter()
 		for isDigit(self.current_char) {
 			self.consumeCharacter()
 		}
 	}
-
-	for isDigit(self.current_char) {
-		if self.peek(1) == '.' {
-			self.consumeCharacter()
-			for isDigit(self.current_char) {
+	else {
+		for isDigit(self.current_char) {
+			if self.peek(1) == '.' {
 				self.consumeCharacter()
+				for isDigit(self.current_char) {
+					self.consumeCharacter()
+				}
 			}
+			self.consumeCharacter()
 		}
-		self.consumeCharacter()
 	}
 
 	self.createToken(NUMBER, self.flushBuffer())
