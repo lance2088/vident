@@ -1,14 +1,14 @@
 package main
 
 import (
-	"fmt"
 	"container/list"
+	"fmt"
 )
 
 type Parser struct {
 	token_stream list.List
-	parse_tree list.List
-	token_index int
+	parse_tree   list.List
+	token_index  int
 }
 
 func (p *Parser) createParser(token_stream list.List) {
@@ -17,7 +17,7 @@ func (p *Parser) createParser(token_stream list.List) {
 }
 
 func (p *Parser) parseStatement() {
-	
+
 }
 
 func (p *Parser) startParsing() {

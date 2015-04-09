@@ -5,13 +5,12 @@ import (
 )
 
 type BinaryExpression struct {
-	left_hand *BinaryExpression
-	operand byte
+	left_hand  *BinaryExpression
+	operand    byte
 	right_hand *BinaryExpression
 }
 
 type Statement interface {
-	
 }
 
 type VariableDecl struct {
@@ -20,12 +19,12 @@ type VariableDecl struct {
 }
 
 type FunctionDecl struct {
-	name string
+	name   string
 	params list.List
-	body *Statement
+	body   *Statement
 }
 
 type FunctionCall struct {
-	name string
+	name   string
 	params list.List
 }
