@@ -3,6 +3,7 @@ package main
 import (
 	"container/list"
 	"fmt"
+	"unicode/utf8"
 	"strings"
 )
 
@@ -28,10 +29,11 @@ type Lexer struct {
 	line_number   int
 	char_number   int
 	start_pos     int
-	current_char  byte
+	current_char  rune
 	running       bool
 	buffer        string
 	skipped_chars int
+	char_width    int
 	token_stream  list.List
 }
 
@@ -71,8 +73,9 @@ func (self *Lexer) createToken(token_type int, content string) {
  * Peek ahead in our input stream,
  * returns a character.
  */
-func (self *Lexer) peek(ahead int) byte {
-	return self.input[self.pos+ahead]
+func (self *Lexer) peek(ahead int) rune {
+	result, _ := utf8.DecodeRuneInString(self.input[self.pos + ahead:])
+	return result
 }
 
 func (self *Lexer) createLexer(input string) {
@@ -83,14 +86,14 @@ func (self *Lexer) createLexer(input string) {
 	self.char_number = 1
 	self.start_pos = 0
 	self.skipped_chars = 0
-	self.current_char = self.input[self.pos]
+	self.current_char, self.char_width = utf8.DecodeRuneInString(self.input[self.pos:])
 	self.running = true
 }
 
 /**
  * @return if the given character is a number
  */
-func isDigit(c byte) bool {
+func isDigit(c rune) bool {
 	return '0' <= c && c <= '9'
 }
 
@@ -98,7 +101,7 @@ func isDigit(c byte) bool {
  * @return if the given character is "junk" character,
  * i.e. anything below the ASCII code of 32.
  */
-func isLayout(c byte) bool {
+func isLayout(c rune) bool {
 	return c <= 32
 }
 
@@ -106,7 +109,7 @@ func isLayout(c byte) bool {
  * @return if the given character is an
  * uppercase OR lowercase letter.
  */
-func isLetter(c byte) bool {
+func isLetter(c rune) bool {
 	return ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z')
 }
 
@@ -114,7 +117,7 @@ func isLetter(c byte) bool {
  * @return if the given character is a 
  * letter or a digit
  */
-func isLetterOrDigit(c byte) bool {
+func isLetterOrDigit(c rune) bool {
 	return isDigit(c) || isLetter(c)
 }
 
@@ -122,7 +125,7 @@ func isLetterOrDigit(c byte) bool {
  * @return if the given character is
  * an operator, in this case + - * / =
  */
-func isOperator(c byte) bool {
+func isOperator(c rune) bool {
 	return strings.Contains("+-*/=", string(c))
 }
 
@@ -130,7 +133,7 @@ func isOperator(c byte) bool {
  * @return if the given character is a separator,
  * i.e. , {} ()
  */
-func isSeparator(c byte) bool {
+func isSeparator(c rune) bool {
 	return strings.Contains(",{}()", string(c))
 }
 
@@ -175,7 +178,7 @@ func (self *Lexer) consumeCharacter() {
 	}
 
 	self.pos++
-	self.current_char = self.input[self.pos]
+	self.current_char, self.char_width = utf8.DecodeRuneInString(self.input[self.pos:])
 	self.char_number = self.char_number + 1
 }
 
