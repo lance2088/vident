@@ -2,7 +2,9 @@
 Vident is a scripting language written in Go for a tutorial series. It's an interpreter implemented
 in the Go programming language.
 
-## 
+## Blog
+I've been moving my blog around a ton, I've finally settled
+with using Ghost, so go check out my blog [here](http://blog.felixangell.com).
 
 ## Example:
 
