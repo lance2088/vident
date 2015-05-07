@@ -1,8 +1,5 @@
-# variable
 let x = 1 + 1
 
-# function declaration?
 let y(x, y) = { x + y }
 
-# function call
 y(x, x)
