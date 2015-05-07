@@ -6,6 +6,8 @@ in the Go programming language.
 I've been moving my blog around a ton, I've finally settled
 with using Ghost, so go check out my blog [here](http://blog.felixangell.com).
 
+[Here's a link to the first article in the series](http://blog.felixangell.com/part-1-lets-build-an-interpreted-language-in-go/).
+
 ## Example:
 
     let x = 5 + 5
